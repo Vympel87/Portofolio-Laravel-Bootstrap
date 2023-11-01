@@ -6,6 +6,8 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SendEmailController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,4 +55,8 @@ Route::post('/register', [RegisterController::class, 'store']);
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth');
 
+Route::get('/send-mail', [SendEmailController::class, 'index'])->name('kirim-email');
 
+Route::post('/post-email', [SendEmailController::class, 'store'])->name('post-email');
+
+Route::get('/send-verif', [SendEmailController::class, 'sendVerif'])->name('kirim-verif');
