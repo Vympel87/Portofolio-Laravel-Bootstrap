@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\SendEmail;
-use Illuminate\Http\Request;
 use App\Models\User;
+use App\Jobs\SendMailJob;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 
 class RegisterController extends Controller
 {
@@ -43,36 +42,68 @@ class RegisterController extends Controller
     //     return redirect('/login')->with('success', 'Registration succesfull! Try to login now');
     // }
 
+//     public function store(Request $request)
+//     {
+//     // Validasi data yang diinput oleh pengguna
+//     $validatedData = $request->validate([
+//         'name' => 'required|max:255',
+//         'username' => ['required', 'min:3', 'max:255', 'unique:users'],
+//         'email' => 'required|email:dns|unique:users',
+//         'password' => 'required|min:8|max:255'
+//     ]);
+
+//     // Buat pengguna baru
+//     $user = User::create([
+//         'name' => $validatedData['name'],
+//         'username' => $validatedData['username'],
+//         'email' => $validatedData['email'],
+//         'password' => Hash::make($validatedData['password']),
+//     ]);
+
+//     // Kirim email verifikasi
+//     $content = [
+//         'name' => $user->name,
+//         'subject' => 'Verifikasi Email',
+//         'body' => 'Terima kasih atas pendaftaran Anda. Silakan verifikasi alamat email Anda untuk mengaktifkan akun Anda.'
+//     ];
+
+//     Mail::to($user->email)->send(new SendEmail($content));
+
+//     // Setelah berhasil mendaftar, arahkan pengguna ke halaman login atau halaman konfirmasi pendaftaran.
+//     // Misalnya, Anda dapat mengarahkan pengguna ke halaman login dengan pesan sukses.
+//     return redirect('/login')->with('success', 'Pendaftaran berhasil! Silakan login atau verifikasi email Anda.');
+//     }
+
     public function store(Request $request)
     {
-    // Validasi data yang diinput oleh pengguna
-    $validatedData = $request->validate([
-        'name' => 'required|max:255',
-        'username' => ['required', 'min:3', 'max:255', 'unique:users'],
-        'email' => 'required|email:dns|unique:users',
-        'password' => 'required|min:8|max:255'
-    ]);
+        // Validasi data yang diinput oleh pengguna
+        $validatedData = $request->validate([
+            'name' => 'required|max:255',
+            'username' => ['required', 'min:3', 'max:255', 'unique:users'],
+            'email' => 'required|email:dns|unique:users',
+            'password' => 'required|min:8|max:255'
+        ]);
 
-    // Buat pengguna baru
-    $user = User::create([
-        'name' => $validatedData['name'],
-        'username' => $validatedData['username'],
-        'email' => $validatedData['email'],
-        'password' => Hash::make($validatedData['password']),
-    ]);
+        // Buat pengguna baru
+        $user = User::create([
+            'name' => $validatedData['name'],
+            'username' => $validatedData['username'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+        ]);
 
-    // Kirim email verifikasi
-    $content = [
-        'name' => $user->name,
-        'subject' => 'Verifikasi Email',
-        'body' => 'Terima kasih atas pendaftaran Anda. Silakan verifikasi alamat email Anda untuk mengaktifkan akun Anda.'
-    ];
+        // Buat pekerjaan antrian untuk mengirim email verifikasi
+        $content = [
+            'name' => $user->name,
+            'subject' => 'Verifikasi Email',
+            'body' => 'Terima kasih atas pendaftaran Anda. Silakan verifikasi alamat email Anda untuk mengaktifkan akun Anda.'
+        ];
 
-    Mail::to($user->email)->send(new SendEmail($content));
+        Queue::push(new SendMailJob($content));
 
-    // Setelah berhasil mendaftar, arahkan pengguna ke halaman login atau halaman konfirmasi pendaftaran.
-    // Misalnya, Anda dapat mengarahkan pengguna ke halaman login dengan pesan sukses.
-    return redirect('/login')->with('success', 'Pendaftaran berhasil! Silakan login atau verifikasi email Anda.');
-}
+        // Setelah berhasil mendaftar, arahkan pengguna ke halaman login atau halaman konfirmasi pendaftaran.
+        // Misalnya, Anda dapat mengarahkan pengguna ke halaman login dengan pesan sukses.
+        return redirect('/login')->with('success', 'Pendaftaran berhasil! Silakan login atau verifikasi email Anda.');
+    }
 
 }
