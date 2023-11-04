@@ -76,7 +76,7 @@ class RegisterController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi data yang diinput oleh pengguna
+
         $validatedData = $request->validate([
             'name' => 'required|max:255',
             'username' => ['required', 'min:3', 'max:255', 'unique:users'],
@@ -92,18 +92,16 @@ class RegisterController extends Controller
             'password' => Hash::make($validatedData['password']),
         ]);
 
-        // Buat pekerjaan antrian untuk mengirim email verifikasi
+
         $content = [
             'name' => $user->name,
             'subject' => 'Verifikasi Email',
-            'body' => 'Terima kasih atas pendaftaran Anda. Silakan verifikasi alamat email Anda untuk mengaktifkan akun Anda.'
+            'body' => 'Thank you for your registration. Please verify your email address to activate your account.'
         ];
 
         Queue::push(new SendMailJob($content));
 
-        // Setelah berhasil mendaftar, arahkan pengguna ke halaman login atau halaman konfirmasi pendaftaran.
-        // Misalnya, Anda dapat mengarahkan pengguna ke halaman login dengan pesan sukses.
-        return redirect('/login')->with('success', 'Pendaftaran berhasil! Silakan login atau verifikasi email Anda.');
+        return redirect('/login')->with('success', 'Register success, Now try to login.');
     }
 
 }

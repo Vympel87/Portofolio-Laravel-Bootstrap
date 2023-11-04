@@ -6,6 +6,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardPostController;
 use App\Http\Controllers\SendEmailController;
 use Illuminate\Support\Facades\Auth;
 
@@ -60,3 +61,5 @@ Route::get('/send-mail', [SendEmailController::class, 'index'])->name('kirim-ema
 Route::post('/post-email', [SendEmailController::class, 'store'])->name('post-email');
 
 Route::get('/send-verif', [SendEmailController::class, 'sendVerif'])->name('kirim-verif');
+
+Route::resource('/dashboard/posts', DashboardPostController::class)->middleware('auth');
