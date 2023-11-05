@@ -62,4 +62,6 @@ Route::post('/post-email', [SendEmailController::class, 'store'])->name('post-em
 
 Route::get('/send-verif', [SendEmailController::class, 'sendVerif'])->name('kirim-verif');
 
+Route::get('dashboard/posts/checkSlug', [DashboardPostController::class, 'checkSlug'])->middleware('auth');
+
 Route::resource('/dashboard/posts', DashboardPostController::class)->middleware('auth');
